@@ -20,7 +20,7 @@ class PointerAI_Client
      */
     public function __construct(array $settings)
     {
-        $this->base_url = rtrim(trim((string) ($settings['base_url'] ?? 'http://localhost:8000')), '/');
+        $this->base_url = rtrim(trim((string) ($settings['base_url'] ?? 'https://pointerdev.ai')), '/');
         $this->project_id = trim((string) ($settings['project_id'] ?? ''));
         $this->publishable_key = trim((string) ($settings['publishable_key'] ?? ''));
         $timeout = (int) ($settings['timeout'] ?? 20);

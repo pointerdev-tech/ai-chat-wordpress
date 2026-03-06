@@ -64,7 +64,7 @@ class PointerAI_Plugin
 
         add_settings_field('base_url', 'API Base URL', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
             'key' => 'base_url',
-            'placeholder' => 'https://api.yourdomain.com',
+            'placeholder' => 'https://pointerdev.ai',
         ]);
 
         add_settings_field('project_id', 'Project ID', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
@@ -737,7 +737,7 @@ class PointerAI_Plugin
     private function get_default_settings(): array
     {
         return [
-            'base_url' => 'http://localhost:8000',
+            'base_url' => 'https://pointerdev.ai',
             'project_id' => '',
             'publishable_key' => '',
             'secret_key' => '',

@@ -25,7 +25,7 @@ PointerAI Chat provides:
 1. Upload the `pointerai-chat` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the WordPress admin.
 3. Go to Settings > PointerAI Chat and save:
-   - API Base URL
+   - API Base URL (`https://pointerdev.ai`)
    - Project ID
    - Publishable Key
    - Secret Key (required for login_required mode)

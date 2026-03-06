@@ -11,7 +11,7 @@ Official PointerAI WordPress plugin for embedding AI chat on your site.
 
 Go to **Settings > PointerAI Chat** and configure:
 
-- API Base URL
+- API Base URL (`https://pointerdev.ai`)
 - Project ID
 - Publishable Key (`pk_...`)
 - Secret Key (`sk_...`) for login-required mode
