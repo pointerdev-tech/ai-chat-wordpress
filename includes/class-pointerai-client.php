@@ -20,7 +20,11 @@ class PointerAI_Client
      */
     public function __construct(array $settings)
     {
-        $this->base_url = rtrim(trim((string) ($settings['base_url'] ?? 'http://localhost:8000')), '/');
+        $base_url = trim((string) ($settings['base_url'] ?? 'https://pointerdev.ai/'));
+        if ($base_url === '' || !wp_http_validate_url($base_url)) {
+            $base_url = 'https://pointerdev.ai/';
+        }
+        $this->base_url = rtrim($base_url, '/');
         $this->project_id = trim((string) ($settings['project_id'] ?? ''));
         $this->publishable_key = trim((string) ($settings['publishable_key'] ?? ''));
         $timeout = (int) ($settings['timeout'] ?? 20);
@@ -72,7 +76,7 @@ class PointerAI_Client
         if ($end_user_token === null) {
             return new WP_Error(
                 'pointerai_missing_end_user_token',
-                'end_user_token is required for session exchange.'
+                __('end_user_token is required for session exchange.', 'pointerdev-ai-chat')
             );
         }
 
@@ -112,7 +116,7 @@ class PointerAI_Client
         if ($token === null) {
             return new WP_Error(
                 'pointerai_missing_session_token',
-                'Session token is required for refresh.'
+                __('Session token is required for refresh.', 'pointerdev-ai-chat')
             );
         }
 
@@ -215,7 +219,7 @@ class PointerAI_Client
     {
         $message = trim($message);
         if ($message === '') {
-            return new WP_Error('pointerai_invalid_message', 'Message is required.');
+            return new WP_Error('pointerai_invalid_message', __('Message is required.', 'pointerdev-ai-chat'));
         }
 
         $payload = [
@@ -274,7 +278,7 @@ class PointerAI_Client
         if ($this->project_id === '' || $this->publishable_key === '') {
             return new WP_Error(
                 'pointerai_missing_config',
-                'PointerAI project ID and publishable key are required in plugin settings.'
+                __('PointerAI project ID and publishable key are required in plugin settings.', 'pointerdev-ai-chat')
             );
         }
 
@@ -325,7 +329,7 @@ class PointerAI_Client
 
             $detail = is_array($decoded) && isset($decoded['detail']) && is_scalar($decoded['detail'])
                 ? (string) $decoded['detail']
-                : ($body !== '' ? $body : 'PointerAI request failed.');
+                : ($body !== '' ? $body : __('PointerAI request failed.', 'pointerdev-ai-chat'));
 
             return new WP_Error('pointerai_api_error', $detail, [
                 'status' => $status,
@@ -359,7 +363,7 @@ class PointerAI_Client
         if ($token === null) {
             return new WP_Error(
                 'pointerai_invalid_session_response',
-                'Session token response did not include token.'
+                __('Session token response did not include token.', 'pointerdev-ai-chat')
             );
         }
 

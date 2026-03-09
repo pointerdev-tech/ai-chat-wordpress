@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 class PointerAI_Plugin
 {
     private const OPTION_KEY = 'pointerai_chat_settings';
+    private const RUNTIME_KEYS_OPTION = 'pointerai_chat_runtime_keys';
     private const SETTINGS_GROUP = 'pointerai_chat_settings_group';
     private const NONCE_ACTION = 'pointerai_chat_send';
     private const NONCE_WIDGET_TOKEN = 'pointerai_widget_token';
@@ -26,6 +27,10 @@ class PointerAI_Plugin
     {
         add_action('admin_menu', [$this, 'register_admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
+        add_filter(
+            'plugin_action_links_' . plugin_basename(POINTERAI_CHAT_PLUGIN_DIR . 'pointerdev-ai-chat.php'),
+            [$this, 'add_plugin_action_links']
+        );
 
         add_shortcode('pointerai_chat', [$this, 'render_chat_shortcode']);
 
@@ -34,13 +39,30 @@ class PointerAI_Plugin
         add_action('wp_ajax_pointerai_widget_token', [$this, 'ajax_widget_token']);
     }
 
+    /**
+     * @param array<int, string> $links
+     * @return array<int, string>
+     */
+    public function add_plugin_action_links(array $links): array
+    {
+        $settings_link = sprintf(
+            '<a href="%s">%s</a>',
+            esc_url(admin_url('options-general.php?page=pointerdev-ai-chat')),
+            esc_html__('Settings', 'pointerdev-ai-chat')
+        );
+
+        array_unshift($links, $settings_link);
+
+        return $links;
+    }
+
     public function register_admin_menu(): void
     {
         add_options_page(
-            'PointerAI Chat',
-            'PointerAI Chat',
+            __('PointerDev AI Chat', 'pointerdev-ai-chat'),
+            __('PointerDev AI Chat', 'pointerdev-ai-chat'),
             'manage_options',
-            'pointerai-chat',
+            'pointerdev-ai-chat',
             [$this, 'render_settings_page']
         );
     }
@@ -55,47 +77,47 @@ class PointerAI_Plugin
 
         add_settings_section(
             'pointerai_chat_main',
-            'PointerAI Connection',
+            __('PointerAI Connection', 'pointerdev-ai-chat'),
             static function (): void {
-                echo '<p>Use your agent project ID and publishable key from PointerAI.</p>';
+                echo '<p>' . esc_html__('Use your agent project ID and publishable key from PointerAI.', 'pointerdev-ai-chat') . '</p>';
             },
-            'pointerai-chat'
+            'pointerdev-ai-chat'
         );
 
-        add_settings_field('base_url', 'API Base URL', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('base_url', __('API Base URL', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'base_url',
             'placeholder' => 'https://api.yourdomain.com',
         ]);
 
-        add_settings_field('project_id', 'Project ID', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('project_id', __('Project ID', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'project_id',
             'placeholder' => 'project-uuid',
         ]);
 
-        add_settings_field('publishable_key', 'Publishable Key', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('publishable_key', __('Publishable Key', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'publishable_key',
             'placeholder' => 'pk_...',
         ]);
 
-        add_settings_field('secret_key', 'Secret Key', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('secret_key', __('Secret Key', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'secret_key',
             'placeholder' => 'sk_...',
             'type' => 'password',
         ]);
 
-        add_settings_field('auth_mode', 'Auth Mode', [$this, 'render_auth_mode_field'], 'pointerai-chat', 'pointerai_chat_main');
+        add_settings_field('auth_mode', __('Auth Mode', 'pointerdev-ai-chat'), [$this, 'render_auth_mode_field'], 'pointerdev-ai-chat', 'pointerai_chat_main');
 
-        add_settings_field('metadata_source', 'Metadata Source', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('metadata_source', __('Metadata Source', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'metadata_source',
             'placeholder' => 'wordpress-plugin',
         ]);
 
-        add_settings_field('token_ttl_minutes', 'End-user token TTL (min)', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('token_ttl_minutes', __('End-user token TTL (min)', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'token_ttl_minutes',
             'placeholder' => '60',
         ]);
 
-        add_settings_field('widget_script_url', 'Widget Script URL', [$this, 'render_text_field'], 'pointerai-chat', 'pointerai_chat_main', [
+        add_settings_field('widget_script_url', __('Widget Script URL', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
             'key' => 'widget_script_url',
             'placeholder' => 'https://cdn.jsdelivr.net/npm/@pointerdev/pointerai-widget@latest/dist/pointerai-widget.js',
         ]);
@@ -108,12 +130,12 @@ class PointerAI_Plugin
         }
 
         echo '<div class="wrap">';
-        echo '<h1>PointerAI Chat</h1>';
+        echo '<h1>' . esc_html__('PointerDev AI Chat', 'pointerdev-ai-chat') . '</h1>';
         echo '<p>Shortcode: <code>[pointerai_chat]</code></p>';
         echo '<form method="post" action="options.php">';
         settings_fields(self::SETTINGS_GROUP);
-        do_settings_sections('pointerai-chat');
-        submit_button('Save Settings');
+        do_settings_sections('pointerdev-ai-chat');
+        submit_button(__('Save Settings', 'pointerdev-ai-chat'));
         echo '</form>';
         echo '</div>';
     }
@@ -126,6 +148,7 @@ class PointerAI_Plugin
     {
         $defaults = $this->get_default_settings();
         $existing = $this->get_settings();
+        $base_url = isset($raw['base_url']) ? esc_url_raw((string) $raw['base_url']) : '';
         $incoming_secret = isset($raw['secret_key']) ? sanitize_text_field((string) $raw['secret_key']) : '';
         $secret_key = $incoming_secret;
         if ($incoming_secret === '' && isset($existing['secret_key']) && is_scalar($existing['secret_key'])) {
@@ -134,7 +157,7 @@ class PointerAI_Plugin
         }
 
         $settings = [
-            'base_url' => isset($raw['base_url']) ? sanitize_text_field((string) $raw['base_url']) : $defaults['base_url'],
+            'base_url' => $this->normalize_base_url($base_url, (string) $defaults['base_url']),
             'project_id' => isset($raw['project_id']) ? sanitize_text_field((string) $raw['project_id']) : '',
             'publishable_key' => isset($raw['publishable_key']) ? sanitize_text_field((string) $raw['publishable_key']) : '',
             'secret_key' => $secret_key,
@@ -147,10 +170,6 @@ class PointerAI_Plugin
 
         if (!in_array($settings['auth_mode'], ['auto', 'anonymous', 'end_user'], true)) {
             $settings['auth_mode'] = 'auto';
-        }
-
-        if ($settings['base_url'] === '') {
-            $settings['base_url'] = $defaults['base_url'];
         }
 
         if ($settings['metadata_source'] === '') {
@@ -198,7 +217,7 @@ class PointerAI_Plugin
             esc_attr($type)
         );
         if ($type === 'password') {
-            echo '<p class="description">Leave blank to keep current value.</p>';
+            echo '<p class="description">' . esc_html__('Leave blank to keep current value.', 'pointerdev-ai-chat') . '</p>';
         }
     }
 
@@ -208,9 +227,9 @@ class PointerAI_Plugin
         $mode = (string) ($settings['auth_mode'] ?? 'auto');
 
         echo '<select name="' . esc_attr(self::OPTION_KEY) . '[auth_mode]">';
-        echo '<option value="auto" ' . selected($mode, 'auto', false) . '>Auto (follow project behavior)</option>';
-        echo '<option value="anonymous" ' . selected($mode, 'anonymous', false) . '>Anonymous users</option>';
-        echo '<option value="end_user" ' . selected($mode, 'end_user', false) . '>End-user token required</option>';
+        echo '<option value="auto" ' . selected($mode, 'auto', false) . '>' . esc_html__('Auto (follow project behavior)', 'pointerdev-ai-chat') . '</option>';
+        echo '<option value="anonymous" ' . selected($mode, 'anonymous', false) . '>' . esc_html__('Anonymous users', 'pointerdev-ai-chat') . '</option>';
+        echo '<option value="end_user" ' . selected($mode, 'end_user', false) . '>' . esc_html__('End-user token required', 'pointerdev-ai-chat') . '</option>';
         echo '</select>';
     }
 
@@ -222,16 +241,18 @@ class PointerAI_Plugin
         $settings = $this->get_settings();
         $root_id = 'pointerai-chat-' . wp_generate_uuid4();
         $token_nonce = wp_create_nonce(self::NONCE_WIDGET_TOKEN);
+        $chat_nonce = wp_create_nonce(self::NONCE_ACTION);
         $auth_mode = (string) ($settings['auth_mode'] ?? 'auto');
         $script_url = (string) ($settings['widget_script_url'] ?? '');
+        $script_url = esc_url_raw($script_url);
 
         $widget_config = [
             'apiBaseUrl' => (string) ($settings['base_url'] ?? ''),
             'projectId' => (string) ($settings['project_id'] ?? ''),
             'publishableKey' => (string) ($settings['publishable_key'] ?? ''),
-            'title' => 'PointerAI Assistant',
-            'subtitle' => 'WordPress integration',
-            'launcherLabel' => 'Chat',
+            'title' => __('PointerAI Assistant', 'pointerdev-ai-chat'),
+            'subtitle' => __('WordPress integration', 'pointerdev-ai-chat'),
+            'launcherLabel' => __('Chat', 'pointerdev-ai-chat'),
             'metadata' => [
                 'source' => (string) ($settings['metadata_source'] ?? 'wordpress-plugin'),
                 'channel' => 'wordpress',
@@ -240,69 +261,62 @@ class PointerAI_Plugin
 
         $should_use_server_token = $auth_mode === 'end_user' || ($auth_mode === 'auto' && is_user_logged_in());
 
-        ob_start();
-        ?>
-        <div id="<?php echo esc_attr($root_id); ?>" class="pointerai-chat-widget"></div>
-        <script>
-            (function() {
-                var config = <?php echo wp_json_encode($widget_config); ?> || {};
-                var shouldUseServerToken = <?php echo wp_json_encode($should_use_server_token); ?>;
+        if (!wp_http_validate_url($script_url)) {
+            if (current_user_can('manage_options')) {
+                return '<p>' . esc_html__('PointerDev AI Chat widget URL is invalid. Please update the plugin settings.', 'pointerdev-ai-chat') . '</p>';
+            }
+            return '';
+        }
 
-                if (shouldUseServerToken) {
-                    config.getEndUserToken = async function() {
-                        var body = new URLSearchParams();
-                        body.set('action', 'pointerai_widget_token');
-                        body.set('nonce', <?php echo wp_json_encode($token_nonce); ?>);
+        $widget_handle = 'pointerdev-ai-chat-widget';
+        wp_enqueue_script($widget_handle, $script_url, [], POINTERAI_CHAT_PLUGIN_VERSION, true);
 
-                        var response = await fetch(<?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-                            body: body.toString(),
-                            credentials: 'same-origin'
-                        });
-                        var json = await response.json();
-                        if (!json || !json.success || !json.data || !json.data.token) {
-                            var message = (json && json.data && json.data.message) ? json.data.message : 'Token mint failed.';
-                            throw new Error(message);
-                        }
-                        return json.data.token;
-                    };
-                }
+        $inline_payload = [
+            'config' => $widget_config,
+            'shouldUseServerToken' => $should_use_server_token,
+            'tokenAction' => 'pointerai_widget_token',
+            'tokenNonce' => $token_nonce,
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'messages' => [
+                'tokenMintFailed' => __('Token mint failed.', 'pointerdev-ai-chat'),
+                'initFailed' => __('PointerAI widget init failed', 'pointerdev-ai-chat'),
+            ],
+        ];
 
-                var initWidget = function() {
-                    if (!window.PointerAIWidget || typeof window.PointerAIWidget.init !== 'function') {
-                        return;
-                    }
-                    window.PointerAIWidget.init(config).catch(function(err) {
-                        if (window.console && typeof window.console.error === 'function') {
-                            window.console.error('PointerAI widget init failed', err);
-                        }
-                    });
-                };
+        $inline_script = '(function(){'
+            . 'var payload=' . wp_json_encode($inline_payload) . '||{};'
+            . 'var config=payload.config||{};'
+            . 'if(payload.shouldUseServerToken){'
+                . 'config.getEndUserToken=async function(){'
+                    . 'var body=new URLSearchParams();'
+                    . 'body.set("action",payload.tokenAction||"pointerai_widget_token");'
+                    . 'body.set("nonce",payload.tokenNonce||"");'
+                    . 'var response=await fetch(payload.ajaxUrl,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"},body:body.toString(),credentials:"same-origin"});'
+                    . 'var json=null;'
+                    . 'try{json=await response.json();}catch(e){json=null;}'
+                    . 'if(!json||!json.success||!json.data||!json.data.token){'
+                        . 'var message=(json&&json.data&&json.data.message)?json.data.message:(payload.messages&&payload.messages.tokenMintFailed?payload.messages.tokenMintFailed:"Token mint failed.");'
+                        . 'throw new Error(message);'
+                    . '}'
+                    . 'return json.data.token;'
+                . '};'
+            . '}'
+            . 'if(!window.PointerAIWidget||typeof window.PointerAIWidget.init!=="function"){return;}'
+            . 'window.PointerAIWidget.init(config).catch(function(err){'
+                . 'if(window.console&&typeof window.console.error==="function"){'
+                    . 'var msg=(payload.messages&&payload.messages.initFailed)?payload.messages.initFailed:"PointerAI widget init failed";'
+                    . 'window.console.error(msg,err);'
+                . '}'
+            . '});'
+        . '})();';
+        wp_add_inline_script($widget_handle, $inline_script, 'after');
 
-                if (window.PointerAIWidget && typeof window.PointerAIWidget.init === 'function') {
-                    initWidget();
-                    return;
-                }
-
-                var existing = document.querySelector('script[data-pointerai-widget-loader="1"]');
-                if (!existing) {
-                    var script = document.createElement('script');
-                    script.src = <?php echo wp_json_encode($script_url); ?>;
-                    script.defer = true;
-                    script.setAttribute('data-pointerai-widget-loader', '1');
-                    script.onload = function() {
-                        document.dispatchEvent(new CustomEvent('pointerai_widget_loaded'));
-                        initWidget();
-                    };
-                    document.head.appendChild(script);
-                } else {
-                    document.addEventListener('pointerai_widget_loaded', initWidget, { once: true });
-                }
-            })();
-        </script>
-        <?php
-        return (string) ob_get_clean();
+        return sprintf(
+            '<div id="%1$s" class="pointerai-chat-widget" data-pointerai-chat-ajax-url="%2$s" data-pointerai-chat-send-action="pointerai_chat_send" data-pointerai-chat-send-nonce="%3$s"></div>',
+            esc_attr($root_id),
+            esc_url(admin_url('admin-ajax.php')),
+            esc_attr($chat_nonce)
+        );
     }
 
     public function ajax_chat_send(): void
@@ -311,7 +325,7 @@ class PointerAI_Plugin
 
         $message = isset($_POST['message']) ? sanitize_textarea_field(wp_unslash((string) $_POST['message'])) : '';
         if ($message === '') {
-            wp_send_json_error(['message' => 'Message is required.'], 400);
+            wp_send_json_error(['message' => __('Message is required.', 'pointerdev-ai-chat')], 400);
         }
 
         $anon_uid = isset($_POST['anon_uid']) ? sanitize_text_field(wp_unslash((string) $_POST['anon_uid'])) : '';
@@ -349,7 +363,7 @@ class PointerAI_Plugin
                 ], $status);
             }
             wp_send_json_error([
-                'message' => 'This connection requires an end-user token. Provide it via the pointerai_end_user_token filter.',
+                'message' => __('This connection requires an end-user token. Provide it via the pointerai_end_user_token filter.', 'pointerdev-ai-chat'),
             ], 401);
         }
 
@@ -455,7 +469,7 @@ class PointerAI_Plugin
         check_ajax_referer(self::NONCE_WIDGET_TOKEN, 'nonce');
 
         if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Authentication required.'], 401);
+            wp_send_json_error(['message' => __('Authentication required.', 'pointerdev-ai-chat')], 401);
         }
 
         $settings = $this->get_settings();
@@ -494,22 +508,26 @@ class PointerAI_Plugin
         if ($secret_key === '' || $project_id === '') {
             return new WP_Error(
                 'pointerai_missing_secret',
-                'Secret key and project ID are required for login-required mode.',
+                __('Secret key and project ID are required for login-required mode.', 'pointerdev-ai-chat'),
                 ['status' => 500]
             );
         }
 
-        if (!preg_match('/^[0-9a-fA-F-]{36}$/', $project_id)) {
+        if (!preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $project_id)) {
             return new WP_Error(
                 'pointerai_invalid_project_id',
-                'Project ID must be a UUID.',
+                __('Project ID must be a UUID.', 'pointerdev-ai-chat'),
                 ['status' => 400]
             );
         }
 
         $user = wp_get_current_user();
         if (!$user || !$user->exists()) {
-            return new WP_Error('pointerai_user_missing', 'Unable to resolve current WordPress user.', ['status' => 401]);
+            return new WP_Error(
+                'pointerai_user_missing',
+                __('Unable to resolve current WordPress user.', 'pointerdev-ai-chat'),
+                ['status' => 401]
+            );
         }
 
         $ttl_minutes = (int) ($settings['token_ttl_minutes'] ?? 60);
@@ -574,7 +592,7 @@ class PointerAI_Plugin
         if ($token === '') {
             return new WP_Error(
                 'pointerai_token_encode_failed',
-                'Failed to encode end-user token.',
+                __('Failed to encode end-user token.', 'pointerdev-ai-chat'),
                 ['status' => 500]
             );
         }
@@ -677,6 +695,7 @@ class PointerAI_Plugin
         $token = isset($state['token']) && is_scalar($state['token']) ? trim((string) $state['token']) : '';
         if ($token === '') {
             delete_transient($key);
+            $this->unregister_runtime_session_key($key);
             return;
         }
 
@@ -703,11 +722,13 @@ class PointerAI_Plugin
             'refresh_available_at' => $refresh_available_at,
             'session_id' => $session_id,
         ], $ttl_seconds);
+        $this->register_runtime_session_key($key);
     }
 
     private function clear_runtime_session_state(string $key): void
     {
         delete_transient($key);
+        $this->unregister_runtime_session_key($key);
     }
 
     /**
@@ -731,13 +752,55 @@ class PointerAI_Plugin
         return time() >= ($ts - self::RUNTIME_REFRESH_LEEWAY_SECONDS);
     }
 
+    private function normalize_base_url(string $base_url, string $fallback): string
+    {
+        $candidate = trim($base_url);
+        if ($candidate === '' || !wp_http_validate_url($candidate)) {
+            $candidate = $fallback;
+        }
+
+        return rtrim($candidate, '/');
+    }
+
+    private function register_runtime_session_key(string $key): void
+    {
+        $keys = get_option(self::RUNTIME_KEYS_OPTION, []);
+        if (!is_array($keys)) {
+            $keys = [];
+        }
+
+        if (!in_array($key, $keys, true)) {
+            $keys[] = $key;
+            update_option(self::RUNTIME_KEYS_OPTION, $keys, false);
+        }
+    }
+
+    private function unregister_runtime_session_key(string $key): void
+    {
+        $keys = get_option(self::RUNTIME_KEYS_OPTION, []);
+        if (!is_array($keys)) {
+            $keys = [];
+        }
+
+        $keys = array_values(array_filter($keys, static function ($candidate) use ($key): bool {
+            return is_string($candidate) && $candidate !== $key;
+        }));
+
+        if ($keys === []) {
+            delete_option(self::RUNTIME_KEYS_OPTION);
+            return;
+        }
+
+        update_option(self::RUNTIME_KEYS_OPTION, $keys, false);
+    }
+
     /**
      * @return array<string, mixed>
      */
     private function get_default_settings(): array
     {
         return [
-            'base_url' => 'http://localhost:8000',
+            'base_url' => 'https://pointerdev.ai/',
             'project_id' => '',
             'publishable_key' => '',
             'secret_key' => '',
@@ -773,7 +836,14 @@ class PointerAI_Plugin
 
         $anon_uid = 'wp-' . wp_generate_uuid4();
         if (!headers_sent()) {
-            setcookie(self::ANON_COOKIE, $anon_uid, time() + YEAR_IN_SECONDS, COOKIEPATH ?: '/', COOKIE_DOMAIN, is_ssl(), true);
+            setcookie(self::ANON_COOKIE, $anon_uid, [
+                'expires' => time() + YEAR_IN_SECONDS,
+                'path' => COOKIEPATH ?: '/',
+                'domain' => COOKIE_DOMAIN,
+                'secure' => is_ssl(),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
         }
 
         return $anon_uid;

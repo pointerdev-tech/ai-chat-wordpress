@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: PointerAI Chat
- * Plugin URI: https://github.com/pointerdev/pointerai
+ * Plugin Name: PointerDev AI Chat
+ * Plugin URI: https://pointerdev.ai/integration/wordpress
  * Description: Connect WordPress to PointerAI chat APIs using your agent publishable key.
  * Version: 0.1.0
  * Author: PointerDev
@@ -10,7 +10,7 @@
  * Requires PHP: 8.0
  * License: MIT
  * License URI: https://opensource.org/licenses/MIT
- * Text Domain: pointerai-chat
+ * Text Domain: pointerdev-ai-chat
  */
 
 if (!defined('ABSPATH')) {

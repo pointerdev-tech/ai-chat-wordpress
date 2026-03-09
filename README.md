@@ -1,15 +1,15 @@
-# PointerAI Chat for WordPress
+# PointerDev AI Chat for WordPress
 
 Official PointerAI WordPress plugin for embedding AI chat on your site.
 
 ## Installation
 
-- Copy this plugin folder to `wp-content/plugins/pointerai-chat/` and activate it in WordPress admin.
+- Copy this plugin folder to `wp-content/plugins/pointerdev-ai-chat/` and activate it in WordPress admin.
 - Or install/upload the plugin zip through **Plugins > Add New > Upload Plugin**.
 
 ## Configuration
 
-Go to **Settings > PointerAI Chat** and configure:
+Go to **Settings > PointerDev AI Chat** and configure:
 
 - API Base URL
 - Project ID
@@ -45,7 +45,7 @@ Add shortcode to any page/post:
 Run PHP syntax lint locally:
 
 ```bash
-php -l pointerai-chat.php
+php -l pointerdev-ai-chat.php
 php -l includes/class-pointerai-client.php
 php -l includes/class-pointerai-plugin.php
 ```

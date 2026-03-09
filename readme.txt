@@ -1,8 +1,8 @@
-=== PointerAI Chat ===
+=== PointerDev AI Chat ===
 Contributors: pointerdev
 Tags: chat, ai, support, pointerai
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 8.0
 Stable tag: 0.1.0
 License: MIT
@@ -12,9 +12,9 @@ Connect your WordPress site to PointerAI using your agent project credentials an
 
 == Description ==
 
-PointerAI Chat provides:
+PointerDev AI Chat provides:
 
-- Admin settings page under Settings > PointerAI Chat
+- Admin settings page under Settings > PointerDev AI Chat
 - Frontend shortcode `[pointerai_chat]` that loads the widget bundle
 - Guest mode and login-required mode support
 - Server-side end-user token mint endpoint for logged-in WordPress users
@@ -22,9 +22,9 @@ PointerAI Chat provides:
 
 == Installation ==
 
-1. Upload the `pointerai-chat` folder to `/wp-content/plugins/`.
+1. Upload the `pointerdev-ai-chat` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the WordPress admin.
-3. Go to Settings > PointerAI Chat and save:
+3. Go to Settings > PointerDev AI Chat and save:
    - API Base URL
    - Project ID
    - Publishable Key
