@@ -4,14 +4,14 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-$pointerai_chat_runtime_keys = get_option('pointerai_chat_runtime_keys', []);
-if (!is_array($pointerai_chat_runtime_keys)) {
-    $pointerai_chat_runtime_keys = [];
+$pointerdevai_chat_runtime_keys = get_option('pointerai_chat_runtime_keys', []);
+if (!is_array($pointerdevai_chat_runtime_keys)) {
+    $pointerdevai_chat_runtime_keys = [];
 }
 
-foreach ($pointerai_chat_runtime_keys as $pointerai_chat_runtime_key) {
-    if (is_string($pointerai_chat_runtime_key) && $pointerai_chat_runtime_key !== '') {
-        delete_transient($pointerai_chat_runtime_key);
+foreach ($pointerdevai_chat_runtime_keys as $pointerdevai_chat_runtime_key) {
+    if (is_string($pointerdevai_chat_runtime_key) && $pointerdevai_chat_runtime_key !== '') {
+        delete_transient($pointerdevai_chat_runtime_key);
     }
 }
 

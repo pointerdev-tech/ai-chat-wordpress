@@ -1,6 +1,6 @@
 # PointerDev AI Chat for WordPress
 
-Official PointerAI WordPress plugin for embedding AI chat on your site.
+Official PointerDev AI WordPress plugin for embedding AI chat on your site.
 
 ## Installation
 
@@ -21,8 +21,10 @@ Go to **Settings > PointerDev AI Chat** and configure:
 Add shortcode to any page/post:
 
 ```text
-[pointerai_chat]
+[pointerdevai_chat]
 ```
+
+Legacy shortcode `[pointerai_chat]` remains available for backward compatibility.
 
 ## Auth Modes
 
@@ -32,8 +34,15 @@ Add shortcode to any page/post:
 
 ## Filters
 
-- `pointerai_end_user_token`
-- `pointerai_end_user_subject_seed`
+- `pointerdevai_end_user_token`
+- `pointerdevai_end_user_subject_seed`
+
+Legacy filters `pointerai_end_user_token` and `pointerai_end_user_subject_seed` still work.
+
+## Compatibility Notes
+
+- The bundled widget package still exposes the `PointerAIWidget` browser global.
+- Token issuer/audience values remain `pointerai` because the current backend contract expects them.
 
 ## Notes
 

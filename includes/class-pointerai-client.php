@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class PointerAI_Client
+class PointerDevAI_Client
 {
     private string $base_url;
     private string $project_id;
@@ -278,7 +278,7 @@ class PointerAI_Client
         if ($this->project_id === '' || $this->publishable_key === '') {
             return new WP_Error(
                 'pointerai_missing_config',
-                __('PointerAI project ID and publishable key are required in plugin settings.', 'pointerdev-ai-chat')
+                __('PointerDev AI project ID and publishable key are required in plugin settings.', 'pointerdev-ai-chat')
             );
         }
 
@@ -329,7 +329,7 @@ class PointerAI_Client
 
             $detail = is_array($decoded) && isset($decoded['detail']) && is_scalar($decoded['detail'])
                 ? (string) $decoded['detail']
-                : ($body !== '' ? $body : __('PointerAI request failed.', 'pointerdev-ai-chat'));
+                : ($body !== '' ? $body : __('PointerDev AI request failed.', 'pointerdev-ai-chat'));
 
             return new WP_Error('pointerai_api_error', $detail, [
                 'status' => $status,
@@ -460,4 +460,8 @@ class PointerAI_Client
         $trimmed = trim($value);
         return $trimmed === '' ? null : $trimmed;
     }
+}
+
+if (!class_exists('PointerAI_Client', false)) {
+    class_alias('PointerDevAI_Client', 'PointerAI_Client');
 }
