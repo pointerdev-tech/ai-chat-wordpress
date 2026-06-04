@@ -131,9 +131,47 @@ class PointerDevAI_Plugin
             'placeholder' => '60',
         ]);
 
-        add_settings_field('widget_script_url', __('Widget Script URL', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_main', [
-            'key' => 'widget_script_url',
-            'placeholder' => 'https://cdn.jsdelivr.net/npm/@pointerdev/pointerai-widget@latest/dist/pointerai-widget.js',
+        add_settings_section(
+            'pointerai_chat_appearance',
+            __('Widget Appearance', 'pointerdev-ai-chat'),
+            static function (): void {
+                echo '<p>' . esc_html__('Customize the labels and colors shown in the chat widget.', 'pointerdev-ai-chat') . '</p>';
+            },
+            'pointerdev-ai-chat'
+        );
+
+        add_settings_field('widget_title', __('Widget Title', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'widget_title',
+            'placeholder' => 'PointerDev AI Assistant',
+        ]);
+
+        add_settings_field('widget_subtitle', __('Widget Subtitle', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'widget_subtitle',
+            'placeholder' => 'WordPress integration',
+        ]);
+
+        add_settings_field('launcher_label', __('Launcher Label', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'launcher_label',
+            'placeholder' => 'Chat',
+        ]);
+
+        add_settings_field('launcher_icon_style', __('Launcher Icon Style', 'pointerdev-ai-chat'), [$this, 'render_launcher_icon_style_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance');
+
+        add_settings_field('launcher_icon', __('Launcher Icon Text', 'pointerdev-ai-chat'), [$this, 'render_text_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'launcher_icon',
+            'placeholder' => 'AI',
+        ]);
+
+        add_settings_field('theme_color', __('Theme Color', 'pointerdev-ai-chat'), [$this, 'render_color_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'theme_color',
+        ]);
+
+        add_settings_field('user_bubble_color', __('User Bubble Color', 'pointerdev-ai-chat'), [$this, 'render_color_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'user_bubble_color',
+        ]);
+
+        add_settings_field('assistant_bubble_color', __('Assistant Bubble Color', 'pointerdev-ai-chat'), [$this, 'render_color_field'], 'pointerdev-ai-chat', 'pointerai_chat_appearance', [
+            'key' => 'assistant_bubble_color',
         ]);
     }
 
@@ -178,12 +216,22 @@ class PointerDevAI_Plugin
             'auth_mode' => isset($raw['auth_mode']) ? sanitize_text_field((string) $raw['auth_mode']) : 'auto',
             'metadata_source' => isset($raw['metadata_source']) ? sanitize_text_field((string) $raw['metadata_source']) : 'wordpress-plugin',
             'token_ttl_minutes' => isset($raw['token_ttl_minutes']) ? (int) $raw['token_ttl_minutes'] : (int) $defaults['token_ttl_minutes'],
-            'widget_script_url' => isset($raw['widget_script_url']) ? esc_url_raw((string) $raw['widget_script_url']) : $defaults['widget_script_url'],
+            'widget_title' => isset($raw['widget_title']) ? sanitize_text_field((string) $raw['widget_title']) : (string) $defaults['widget_title'],
+            'widget_subtitle' => isset($raw['widget_subtitle']) ? sanitize_text_field((string) $raw['widget_subtitle']) : (string) $defaults['widget_subtitle'],
+            'launcher_label' => isset($raw['launcher_label']) ? sanitize_text_field((string) $raw['launcher_label']) : (string) $defaults['launcher_label'],
+            'launcher_icon_style' => isset($raw['launcher_icon_style']) ? sanitize_text_field((string) $raw['launcher_icon_style']) : (string) $defaults['launcher_icon_style'],
+            'launcher_icon' => isset($raw['launcher_icon']) ? sanitize_text_field((string) $raw['launcher_icon']) : (string) $defaults['launcher_icon'],
+            'theme_color' => $this->sanitize_hex_color_setting($raw, 'theme_color', (string) $defaults['theme_color']),
+            'user_bubble_color' => $this->sanitize_hex_color_setting($raw, 'user_bubble_color', (string) $defaults['user_bubble_color']),
+            'assistant_bubble_color' => $this->sanitize_hex_color_setting($raw, 'assistant_bubble_color', (string) $defaults['assistant_bubble_color']),
             'timeout' => $defaults['timeout'],
         ];
 
         if (!in_array($settings['auth_mode'], ['auto', 'anonymous', 'end_user'], true)) {
             $settings['auth_mode'] = 'auto';
+        }
+        if (!in_array($settings['launcher_icon_style'], ['text', 'bubble'], true)) {
+            $settings['launcher_icon_style'] = $defaults['launcher_icon_style'];
         }
 
         if ($settings['metadata_source'] === '') {
@@ -197,8 +245,10 @@ class PointerDevAI_Plugin
             $settings['token_ttl_minutes'] = 24 * 60;
         }
 
-        if ($settings['widget_script_url'] === '') {
-            $settings['widget_script_url'] = $defaults['widget_script_url'];
+        foreach (['widget_title', 'widget_subtitle', 'launcher_icon'] as $key) {
+            if ($settings[$key] === '') {
+                $settings[$key] = $defaults[$key];
+            }
         }
 
         return $settings;
@@ -235,6 +285,38 @@ class PointerDevAI_Plugin
         }
     }
 
+    /**
+     * @param array<string, mixed> $args
+     */
+    public function render_color_field(array $args): void
+    {
+        $settings = $this->get_settings();
+        $defaults = $this->get_default_settings();
+        $key = (string) ($args['key'] ?? '');
+        $value = isset($settings[$key]) && is_string($settings[$key]) ? $settings[$key] : '';
+        $fallback = isset($defaults[$key]) && is_string($defaults[$key]) ? $defaults[$key] : '#000000';
+        $value = sanitize_hex_color($value) ?: $fallback;
+
+        printf(
+            '<input type="color" name="%1$s[%2$s]" value="%3$s"/>',
+            esc_attr(self::OPTION_KEY),
+            esc_attr($key),
+            esc_attr($value)
+        );
+    }
+
+    public function render_launcher_icon_style_field(): void
+    {
+        $settings = $this->get_settings();
+        $style = (string) ($settings['launcher_icon_style'] ?? 'text');
+
+        echo '<select name="' . esc_attr(self::OPTION_KEY) . '[launcher_icon_style]">';
+        echo '<option value="bubble" ' . selected($style, 'bubble', false) . '>' . esc_html__('Chat bubble icon', 'pointerdev-ai-chat') . '</option>';
+        echo '<option value="text" ' . selected($style, 'text', false) . '>' . esc_html__('Text initials', 'pointerdev-ai-chat') . '</option>';
+        echo '</select>';
+        echo '<p class="description">' . esc_html__('Use Chat bubble icon and leave Launcher Label empty for a round icon-only launcher.', 'pointerdev-ai-chat') . '</p>';
+    }
+
     public function render_auth_mode_field(): void
     {
         $settings = $this->get_settings();
@@ -257,16 +339,20 @@ class PointerDevAI_Plugin
         $token_nonce = wp_create_nonce(self::NONCE_WIDGET_TOKEN);
         $chat_nonce = wp_create_nonce(self::NONCE_ACTION);
         $auth_mode = (string) ($settings['auth_mode'] ?? 'auto');
-        $script_url = (string) ($settings['widget_script_url'] ?? '');
-        $script_url = esc_url_raw($script_url);
+        $script_url = POINTERDEVAI_CHAT_PLUGIN_URL . 'assets/js/pointerai-widget.js';
 
         $widget_config = [
             'apiBaseUrl' => (string) ($settings['base_url'] ?? ''),
             'projectId' => (string) ($settings['project_id'] ?? ''),
             'publishableKey' => (string) ($settings['publishable_key'] ?? ''),
-            'title' => __('PointerDev AI Assistant', 'pointerdev-ai-chat'),
-            'subtitle' => __('WordPress integration', 'pointerdev-ai-chat'),
-            'launcherLabel' => __('Chat', 'pointerdev-ai-chat'),
+            'title' => (string) ($settings['widget_title'] ?? 'PointerDev AI Assistant'),
+            'subtitle' => (string) ($settings['widget_subtitle'] ?? 'WordPress integration'),
+            'launcherLabel' => (string) ($settings['launcher_label'] ?? 'Chat'),
+            'launcherIconStyle' => (string) ($settings['launcher_icon_style'] ?? 'text'),
+            'launcherIcon' => (string) ($settings['launcher_icon'] ?? 'AI'),
+            'themeColor' => (string) ($settings['theme_color'] ?? '#0f766e'),
+            'userBubbleColor' => (string) ($settings['user_bubble_color'] ?? '#0f766e'),
+            'assistantBubbleColor' => (string) ($settings['assistant_bubble_color'] ?? '#ffffff'),
             'metadata' => [
                 'source' => (string) ($settings['metadata_source'] ?? 'wordpress-plugin'),
                 'channel' => 'wordpress',
@@ -274,13 +360,6 @@ class PointerDevAI_Plugin
         ];
 
         $should_use_server_token = $auth_mode === 'end_user' || ($auth_mode === 'auto' && is_user_logged_in());
-
-        if (!wp_http_validate_url($script_url)) {
-            if (current_user_can('manage_options')) {
-                return '<p>' . esc_html__('PointerDev AI Chat widget URL is invalid. Please update the plugin settings.', 'pointerdev-ai-chat') . '</p>';
-            }
-            return '';
-        }
 
         $widget_handle = 'pointerdev-ai-chat-widget';
         wp_enqueue_script($widget_handle, $script_url, [], POINTERDEVAI_CHAT_PLUGIN_VERSION, true);
@@ -786,6 +865,15 @@ class PointerDevAI_Plugin
         return rtrim($candidate, '/');
     }
 
+    /**
+     * @param array<string, mixed> $raw
+     */
+    private function sanitize_hex_color_setting(array $raw, string $key, string $fallback): string
+    {
+        $value = isset($raw[$key]) ? sanitize_hex_color((string) $raw[$key]) : '';
+        return $value ?: $fallback;
+    }
+
     private function register_runtime_session_key(string $key): void
     {
         $keys = get_option(self::RUNTIME_KEYS_OPTION, []);
@@ -831,7 +919,14 @@ class PointerDevAI_Plugin
             'auth_mode' => 'auto',
             'metadata_source' => 'wordpress-plugin',
             'token_ttl_minutes' => 60,
-            'widget_script_url' => 'https://cdn.jsdelivr.net/npm/@pointerdev/pointerai-widget@latest/dist/pointerai-widget.js',
+            'widget_title' => 'PointerDev AI Assistant',
+            'widget_subtitle' => 'WordPress integration',
+            'launcher_label' => 'Chat',
+            'launcher_icon_style' => 'bubble',
+            'launcher_icon' => 'AI',
+            'theme_color' => '#0f766e',
+            'user_bubble_color' => '#0f766e',
+            'assistant_bubble_color' => '#ffffff',
             'timeout' => 20,
         ];
     }

@@ -3,7 +3,7 @@
  * Plugin Name: PointerDev AI Chat
  * Plugin URI: https://pointerdev.ai/integration/wordpress
  * Description: Connect WordPress to PointerDev AI chat APIs using your agent publishable key.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: PointerDev
  * Author URI: https://pointer.dev
  * Requires at least: 6.0
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('POINTERDEVAI_CHAT_PLUGIN_VERSION', '0.1.0');
+define('POINTERDEVAI_CHAT_PLUGIN_VERSION', '0.1.1');
 define('POINTERDEVAI_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('POINTERDEVAI_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 

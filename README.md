@@ -15,6 +15,9 @@ Go to **Settings > PointerDev AI Chat** and configure:
 - Project ID
 - Publishable Key (`pk_...`)
 - Secret Key (`sk_...`) for login-required mode
+- Widget title, subtitle, launcher label, icon style, icon text, and colors
+
+For a round chat bubble launcher, set **Launcher Icon Style** to `Chat bubble icon` and leave **Launcher Label** empty.
 
 ## Usage
 
@@ -25,6 +28,14 @@ Add shortcode to any page/post:
 ```
 
 Legacy shortcode `[pointerai_chat]` remains available for backward compatibility.
+
+## External Service
+
+This plugin connects WordPress to PointerDev AI. A PointerDev AI account and project credentials are required.
+
+When visitors use the chat widget, chat messages, project credentials, anonymous visitor identifiers or logged-in user token data, and configured metadata are sent to the API Base URL saved in plugin settings. The default endpoint is `https://pointerdev.ai/`.
+
+The widget JavaScript is bundled locally with the plugin; it is not loaded from a CDN.
 
 ## Auth Modes
 
